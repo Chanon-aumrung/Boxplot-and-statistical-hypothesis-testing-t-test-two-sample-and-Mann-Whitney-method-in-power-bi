@@ -1,0 +1,56 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.stats as stats
+from scipy.stats import mannwhitneyu
+
+#Mean calculation from only distinct number
+xMean1=np.mean(dataset['X1'])
+xMean2=np.mean(dataset['X2'])
+
+#S.D. calculation from only distinct number
+xSD1=np.std(dataset['X1'])
+xSD2=np.std(dataset['X2'])
+
+xMean= 'Mean='+str(xMean1)
+#xSD='S.D.'+str(xSD2)
+
+#Count from only distinct number
+count1=np.count_nonzero(~np.isnan(dataset['X1']))
+count2=np.count_nonzero(~np.isnan(dataset['X2']))
+
+# xCount = 'Count ='+str(count2)
+
+#loc=mean, scale=S.D., size=size
+Data1=stats.norm.rvs(loc=xMean1,scale=xSD1,size=count1)
+Data2=stats.norm.rvs(loc=xMean2,scale=xSD2,size=count2)
+
+t_test,p_value=stats.ttest_ind(a=Data1,b=Data2,equal_var=False)
+
+Data3=dataset['X1']
+Data4=dataset['X2']
+stat,p_value1=mannwhitneyu(Data3, Data4)
+
+alpha = 0.05
+
+if p_value<alpha:
+    Con= (1-alpha)*100
+    xP_value='Difference (t-test) at confidence level = '+str(Con)+'%'
+else:
+    Con= (1-alpha)*100
+    xP_value='Not difference (t-test) at confidence level = '+str(Con)+'%'
+
+if p_value1<alpha:
+    Con= (1-alpha)*100
+    xP_value1='Difference (Mann-Whiteney) at confidence level = '+str(Con)+'%'
+else:
+    Con= (1-alpha)*100
+    xP_value1='Not difference (Mann-Whiteney) at confidence level = '+str(Con)+'%'
+
+ax=plt.gca()
+dataset.boxplot(by='Source', column='BothX1&X2',ax=ax,grid=False)
+plt.title(xP_value,fontsize=15,wrap=True,color='red')
+plt.xticks(fontsize= 9, ha='right', wrap=True, rotation=30)
+plt.xlabel(xP_value1,labelpad=10, size=13,color='red')
+plt.ylabel('Y value',labelpad=10, size=10)
+plt.tight_layout()
+plt.show()
